@@ -102,7 +102,7 @@ const MyPosts = ({ isAuth }) => {
       {postLists.map((post) => {
         return (
           <div>
-            {isAuth && post.author.name === auth.currentUser.displayName && (
+            {isAuth && (post.author.name === auth.currentUser.displayName || post.author.name===auth.currentUser.email.split('@')[0] ) && (
               <div>
               {edit === false && (
                   <div className="post">
