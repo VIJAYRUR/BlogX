@@ -43,14 +43,12 @@ const MyPosts = ({ isAuth }) => {
   const change2 = async (post) => {
     console.log(text.length);
     await deletePost(post.id);
-    if (url == "" || url === "" || url.trim().length == 0) {
-      setUrl(post.url);
-    }
+
     if (title.length == 0 && text.length == 0) {
       await addDoc(postsCollectionRef, {
         title: post.title,
         postText: post.postText,
-        url,
+        url: post.url,
         author: {
           name: auth.currentUser.displayName,
           id: auth.currentUser.uid,
@@ -60,7 +58,7 @@ const MyPosts = ({ isAuth }) => {
       await addDoc(postsCollectionRef, {
         title: post.title,
         postText: text,
-        url,
+        url: post.url,
         author: {
           name: auth.currentUser.displayName,
           id: auth.currentUser.uid,
@@ -70,7 +68,7 @@ const MyPosts = ({ isAuth }) => {
       await addDoc(postsCollectionRef, {
         title: title,
         postText: post.postText,
-        url,
+        url: post.url,
         author: {
           name: auth.currentUser.displayName,
           id: auth.currentUser.uid,
@@ -80,12 +78,13 @@ const MyPosts = ({ isAuth }) => {
       await addDoc(postsCollectionRef, {
         title: title,
         postText: text,
-        url,
+        url: post.url,
         author: {
           name: auth.currentUser.displayName,
           id: auth.currentUser.uid,
         },
       });
+      window.location.reload();
     }
   };
   useEffect(() => {
@@ -168,16 +167,7 @@ const MyPosts = ({ isAuth }) => {
                         onChange={(e) => setText(e.target.value)}
                       ></textarea>
                     </div>
-                    <div class="form-group">
-                      <label>Post:</label>
-                      <input
-                        type="text"
-                        class="form-control"
-                        placeholder="Enter URL"
-                        defaultValue={post.url}
-                        onChange={(e) => setUrl(e.target.value)}
-                      />
-                    </div>
+
                     <button
                       onClick={() => deletePost(post.id)}
                       class="btn btn-secondary btn-sm"
