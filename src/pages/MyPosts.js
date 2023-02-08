@@ -43,7 +43,7 @@ const MyPosts = ({ isAuth }) => {
   const change2 = async (post) => {
     console.log(text.length);
     await deletePost(post.id);
-    if (url === "") {
+    if (url == "" || url === "" || url.trim().length == 0) {
       setUrl(post.url);
     }
     if (title.length == 0 && text.length == 0) {
