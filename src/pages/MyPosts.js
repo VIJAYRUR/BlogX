@@ -16,6 +16,7 @@ const MyPosts = ({ isAuth }) => {
   const [postLists, setPostList] = useState([]);
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
+  const [url, setUrl] = useState("");
 
   let navigate = useNavigate();
   const postsCollectionRef = collection(db, "posts");
@@ -36,37 +37,40 @@ const MyPosts = ({ isAuth }) => {
   const deletePost = async (id) => {
     const postDoc = doc(db, "posts", id);
     await deleteDoc(postDoc);
-    setEdit(false)
-    window.location.reload();
+    setEdit(false);
   };
- 
+
   const change2 = async (post) => {
-    console.log(text.length)
-    ;
+    console.log(text.length);
     await deletePost(post.id);
-    if ((title.length == 0)&&(text.length == 0)) {
+    if (url === "") {
+      setUrl(post.url);
+    }
+    if (title.length == 0 && text.length == 0) {
       await addDoc(postsCollectionRef, {
         title: post.title,
         postText: post.postText,
+        url,
         author: {
           name: auth.currentUser.displayName,
           id: auth.currentUser.uid,
         },
       });
-    } 
-    else if ((title.length == 0)&&(text.length != 0)) {
+    } else if (title.length == 0 && text.length != 0) {
       await addDoc(postsCollectionRef, {
         title: post.title,
         postText: text,
+        url,
         author: {
           name: auth.currentUser.displayName,
           id: auth.currentUser.uid,
         },
       });
-    } else if ((title.length != 0)&&(text.length == 0)) {
+    } else if (title.length != 0 && text.length == 0) {
       await addDoc(postsCollectionRef, {
         title: title,
         postText: post.postText,
+        url,
         author: {
           name: auth.currentUser.displayName,
           id: auth.currentUser.uid,
@@ -76,13 +80,13 @@ const MyPosts = ({ isAuth }) => {
       await addDoc(postsCollectionRef, {
         title: title,
         postText: text,
+        url,
         author: {
           name: auth.currentUser.displayName,
           id: auth.currentUser.uid,
         },
       });
     }
-   
   };
   useEffect(() => {
     getPosts();
@@ -94,65 +98,104 @@ const MyPosts = ({ isAuth }) => {
       <h3>My-Posts</h3>
       <br></br>
       {edit === false && (
-        <button onClick={() => setEdit(true)} style={{display:"flex",justifyContent:"flex-end",alignItems:"flex-end"}}class="btn btn-outline-secondary" >Enable Edit Options</button>
+        <button
+          onClick={() => setEdit(true)}
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "flex-end",
+          }}
+          class="btn btn-outline-secondary"
+        >
+          Enable Edit Options
+        </button>
       )}
       {edit === true && (
-        <button onClick={() => setEdit(false)} class="btn btn-secondary">Disable Edit Options</button>
+        <button onClick={() => setEdit(false)} class="btn btn-secondary">
+          Disable Edit Options
+        </button>
       )}
       {postLists.map((post) => {
         return (
           <div>
-            {isAuth &&  (post.author.id === auth.currentUser.uid ) && (
+            {isAuth && post.author.id === auth.currentUser.uid && (
               <div>
-              {edit === false && (
+                {edit === false && (
                   <div className="post">
-                  <div>
-                    <div className="postHeader">
-                      <div className="title">
-                        <h1> {post.title}</h1>
+                    {post.url != null &&
+                      post.url != "na" &&
+                      post.url != "NA" &&
+                      post.url != "" && (
+                        <img
+                          src={post.url}
+                          style={{ height: "300px", width: "500px" }}
+                          class="rounded mx-auto d-block"
+                          alt="..."
+                        ></img>
+                      )}
+                    <div>
+                      <div className="postHeader">
+                        <div className="title">
+                          <h1> {post.title}</h1>
+                        </div>
                       </div>
+                      <div className="postTextContainer"> {post.postText} </div>
                     </div>
-                    <div className="postTextContainer"> {post.postText} </div>
                   </div>
-                </div>
                 )}
                 {edit === true && (
                   // <div className="homePage">
-                  
-                    <div className="post">
-                      <div class="form-group">
-                        <label>Title</label>
-                        
-                        <input
-                          type="text"
-                          class="form-control"
-                          placeholder="Enter Title"
-                          defaultValue={post.title}
-                          onChange={(e) => setTitle(e.target.value)}
-                          
-                        />
-                      </div>
-                      <div class="form-group">
-                        <label>Post:</label>
-                        <textarea
-                          class="form-control"
-                          rows="3"
-                          placeholder="Enter Content"
-                          defaultValue={post.postText}
-                          onChange={(e) => setText(e.target.value)}
-                        ></textarea>
-                      </div>
-                      <button onClick={() => deletePost(post.id)} class="btn btn-secondary btn-sm">
-                        Delete Post
-                      </button>
-                      
-                      <button onClick={() => change2(post)} class="btn btn-secondary btn-sm" style={{marginLeft:"10px"}}>
-                        Save Changes
-                      </button>
+
+                  <div className="post">
+                    <div class="form-group">
+                      <label>Title</label>
+
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter Title"
+                        defaultValue={post.title}
+                        onChange={(e) => setTitle(e.target.value)}
+                      />
                     </div>
+                    <div class="form-group">
+                      <label>Post:</label>
+                      <textarea
+                        class="form-control"
+                        rows="3"
+                        placeholder="Enter Content"
+                        defaultValue={post.postText}
+                        onChange={(e) => setText(e.target.value)}
+                      ></textarea>
+                    </div>
+                    <div class="form-group">
+                      <label>Post:</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter URL"
+                        defaultValue={post.url}
+                        onChange={(e) => setUrl(e.target.value)}
+                      />
+                    </div>
+                    <button
+                      onClick={() => deletePost(post.id)}
+                      class="btn btn-secondary btn-sm"
+                    >
+                      Delete Post
+                    </button>
+
+                    <button
+                      onClick={() => change2(post)}
+                      class="btn btn-secondary btn-sm"
+                      style={{ marginLeft: "10px" }}
+                    >
+                      Save Changes
+                    </button>
+                  </div>
                   // </div>
                 )}
-                </div>
+              </div>
             )}
           </div>
         );
